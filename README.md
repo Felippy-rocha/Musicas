@@ -28,7 +28,7 @@ Este repositório contém um script reproduzível para gerar `./montagem_todas_a
 14. `14.Viajando pela Italia.mp3`
 15. `15. Vila Rica.mp3`
 16. `16. O  Rapaziada do Braz.mp3`
-17. `16.1 Nossa Sehora do Amparo.mp3` — faixa "Nossa Senhora do Amparo"
+17. faixa "Nossa Senhora do Amparo" (arquivo `16.1 Nossa Sehora do Amparo.mp3`)
 18. `17. O veio macho.mp3`
 19. `18. Xote dos cabeludos.mp3`
 20. `19. Xote Ecolologico.mp3`
