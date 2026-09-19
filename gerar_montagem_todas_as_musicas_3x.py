@@ -118,7 +118,12 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    output_path = Path(args.output).resolve()
+    requested_output_path = Path(args.output)
+    output_path = (
+        requested_output_path.resolve()
+        if requested_output_path.is_absolute()
+        else (REPO_ROOT / requested_output_path).resolve()
+    )
     tracks = list_tracks(REPO_ROOT, excluded_paths={output_path})
     if not tracks:
         raise SystemExit("Nenhum arquivo .mp3/.MP3 foi encontrado na raiz do repositório.")
