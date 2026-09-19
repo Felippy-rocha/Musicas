@@ -1,6 +1,6 @@
 # Montagem de todas as músicas (3x)
 
-Este repositório contém um script reproduzível para gerar `/home/runner/work/Musicas/Musicas/montagem_todas_as_musicas_3x.mp3` a partir de todos os arquivos `.mp3`/`.MP3` da raiz.
+Este repositório contém um script reproduzível para gerar `./montagem_todas_as_musicas_3x.mp3` a partir de todos os arquivos `.mp3`/`.MP3` da raiz.
 
 ## Regras usadas
 
@@ -63,17 +63,15 @@ Este repositório contém um script reproduzível para gerar `/home/runner/work/
 
 ## Como gerar
 
-No ambiente local, com `ffmpeg` instalado:
+Na raiz do repositório, com `ffmpeg` instalado:
 
 ```bash
-cd /home/runner/work/Musicas/Musicas
 python3 gerar_montagem_todas_as_musicas_3x.py
 ```
 
 Para validar a ordem e a repetição sem gerar o MP3:
 
 ```bash
-cd /home/runner/work/Musicas/Musicas
 python3 gerar_montagem_todas_as_musicas_3x.py --dry-run
 ```
 

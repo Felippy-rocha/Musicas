@@ -30,13 +30,14 @@ def leading_number_key(name: str) -> tuple[int, ...]:
     return tuple(int(part) for part in match.group(1).split("."))
 
 
-def list_tracks(repo_root: Path) -> list[Path]:
+def list_tracks(repo_root: Path, excluded_paths: set[Path] | None = None) -> list[Path]:
+    excluded_paths = {path.resolve() for path in (excluded_paths or set())}
     tracks = [
         path
         for path in repo_root.iterdir()
         if path.is_file()
         and path.suffix.lower() == ".mp3"
-        and path.name != OUTPUT_NAME
+        and path.resolve() not in excluded_paths
     ]
     return sorted(
         tracks,
@@ -117,13 +118,13 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    tracks = list_tracks(REPO_ROOT)
+    output_path = Path(args.output).resolve()
+    tracks = list_tracks(REPO_ROOT, excluded_paths={output_path})
     if not tracks:
         raise SystemExit("Nenhum arquivo .mp3/.MP3 foi encontrado na raiz do repositório.")
 
     validate_repetitions(tracks)
 
-    output_path = Path(args.output).resolve()
     print(f"Faixas encontradas: {len(tracks)}")
     print("Ordem utilizada:")
     for index, track in enumerate(tracks, start=1):
