@@ -8,7 +8,6 @@ import subprocess
 import sys
 import tempfile
 from collections import Counter
-from decimal import Decimal
 from pathlib import Path
 
 EXPECTED_TRACK_COUNT = 48
@@ -17,11 +16,11 @@ DEFAULT_PARTS = 3
 OUTPUT_BASENAME = "montagem_todas_as_musicas_3x"
 
 
-def numeric_prefix_key(path: Path) -> tuple[Decimal, str]:
-    match = re.match(r"^\s*(\d+(?:\.\d+)?)", path.name)
+def numeric_prefix_key(path: Path) -> tuple[int, tuple[int, ...], str]:
+    match = re.match(r"^\s*(\d+(?:\.\d+)*)", path.name)
     if match:
-        return Decimal(match.group(1)), path.name.casefold()
-    return Decimal("Infinity"), path.name.casefold()
+        return 0, tuple(int(part) for part in match.group(1).split(".")), path.name.casefold()
+    return 1, (), path.name.casefold()
 
 
 def discover_tracks(input_dir: Path) -> list[Path]:
@@ -91,6 +90,16 @@ def validate_parts(
 
     flattened = [item for part in parts for item in part]
     validate_sequence(flattened, tracks, repeats=repeats)
+
+    base_size, remainder = divmod(len(tracks), expected_parts)
+    start = 0
+    for index, part in enumerate(parts):
+        expected_group_count = base_size + (1 if index < remainder else 0)
+        expected_tracks = tracks[start : start + expected_group_count]
+        expected_part = build_sequence(expected_tracks, repeats=repeats)
+        if part != expected_part:
+            raise ValueError(f"A parte {index + 1} não respeita a divisão esperada da sequência.")
+        start += expected_group_count
 
 
 def build_sequence(tracks: list[Path], repeats: int = REPEATS_PER_TRACK) -> list[Path]:

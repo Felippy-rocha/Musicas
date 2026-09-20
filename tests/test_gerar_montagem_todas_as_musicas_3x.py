@@ -71,6 +71,18 @@ class MontagemTests(unittest.TestCase):
             montagem.validate_tracks(tracks)
             montagem.validate_parts(montagem.split_sequence(tracks), tracks)
 
+    def test_validate_parts_rejects_split_triplet_between_parts(self):
+        tracks = [Path(f"{index}. faixa.mp3") for index in range(1, 49)]
+        parts = montagem.split_sequence(tracks)
+        invalid_parts = [
+            parts[0][:-1],
+            [parts[0][-1], *parts[1]],
+            parts[2],
+        ]
+
+        with self.assertRaisesRegex(ValueError, "não respeita a divisão esperada"):
+            montagem.validate_parts(invalid_parts, tracks)
+
     def test_generate_parts_rejects_any_number_other_than_three(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
