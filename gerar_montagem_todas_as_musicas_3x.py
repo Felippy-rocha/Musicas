@@ -244,6 +244,9 @@ def main() -> int:
         return 0
 
     if args.command == "generate":
+        validate_tracks(tracks, expected_count=args.expected_count)
+        parts = split_sequence(tracks, parts=args.parts)
+        validate_parts(parts, tracks, expected_parts=args.parts)
         output_dir = Path(args.output_dir).resolve()
         output_files = generate_parts(
             input_dir=input_dir,
@@ -251,7 +254,6 @@ def main() -> int:
             expected_count=args.expected_count,
             parts=args.parts,
         )
-        parts = split_sequence(tracks)
         print_summary(tracks, parts)
         for output_file in output_files:
             print(f"Gerado: {output_file}")

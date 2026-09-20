@@ -1,6 +1,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import gerar_montagem_todas_as_musicas_3x as montagem
 
@@ -78,6 +79,26 @@ class MontagemTests(unittest.TestCase):
 
             with self.assertRaisesRegex(ValueError, "exatamente 3 partes"):
                 montagem.generate_parts(root, root / "saida", parts=2)
+
+    def test_generate_parts_creates_three_expected_output_paths(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            for index in range(1, 49):
+                (root / f"{index}. faixa.mp3").write_bytes(b"")
+
+            with patch.object(montagem, "concat_sequence_to_mp3") as concat_mock:
+                outputs = montagem.generate_parts(root, root / "saida", parts=3)
+
+        self.assertEqual(
+            [output.name for output in outputs],
+            [
+                "montagem_todas_as_musicas_3x_parte_1.mp3",
+                "montagem_todas_as_musicas_3x_parte_2.mp3",
+                "montagem_todas_as_musicas_3x_parte_3.mp3",
+            ],
+        )
+        self.assertEqual(concat_mock.call_count, 3)
+        self.assertEqual([len(call.args[0]) for call in concat_mock.call_args_list], [48, 48, 48])
 
 
 if __name__ == "__main__":
