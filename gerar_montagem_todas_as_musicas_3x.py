@@ -74,7 +74,7 @@ def validate_sequence(
         chunk = sequence[start : start + repeats]
         if len(chunk) != repeats or any(item != track for item in chunk):
             raise ValueError(
-                "A ordem/repetição 3x consecutiva está incorreta em "
+                f"A ordem/repetição {repeats}x consecutiva está incorreta em "
                 f"{track.name} (posição {index + 1})."
             )
 
@@ -137,11 +137,21 @@ def ensure_ffmpeg_available() -> None:
     )
 
 
+def escape_concat_path(path: Path) -> str:
+    raw_path = path.resolve().as_posix()
+    escaped = []
+    for character in raw_path:
+        if character in {"\\", "'", " ", "\t", "\n", "#"}:
+            escaped.append(f"\\{character}")
+        else:
+            escaped.append(character)
+    return "".join(escaped)
+
+
 def write_concat_list(sequence: list[Path], destination: Path) -> None:
     lines = []
     for path in sequence:
-        escaped_path = path.resolve().as_posix().replace("'", "'\\''")
-        lines.append(f"file '{escaped_path}'")
+        lines.append(f"file {escape_concat_path(path)}")
     destination.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 

@@ -83,6 +83,21 @@ class MontagemTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "não respeita a divisão esperada"):
             montagem.validate_parts(invalid_parts, tracks)
 
+    def test_write_concat_list_escapes_apostrophes_for_ffmpeg(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            track = root / "1. faixa d'agua.mp3"
+            track.write_bytes(b"")
+            concat_file = root / "concat.txt"
+
+            montagem.write_concat_list([track], concat_file)
+
+            content = concat_file.read_text(encoding="utf-8")
+
+        self.assertIn(r"file ", content)
+        self.assertIn(r"\ ", content)
+        self.assertIn(r"\'", content)
+
     def test_generate_parts_rejects_any_number_other_than_three(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
