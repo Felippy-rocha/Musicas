@@ -68,14 +68,15 @@ def estimated_output_size_bytes(tracks: list[Path]) -> int:
 
 
 def ffconcat_escape(path: Path) -> str:
-    return str(path).replace("\\", "\\\\").replace("'", "'\\''")
+    escaped_path = str(path).replace("\\", "\\\\").replace("'", "'\\''")
+    return f"'{escaped_path}'"
 
 
 def write_concat_file(tracks: list[Path], concat_path: Path) -> None:
     with concat_path.open("w", encoding="utf-8") as file:
         file.write("ffconcat version 1.0\n")
         for track in expanded_tracks(tracks):
-            file.write(f"file '{ffconcat_escape(track.resolve())}'\n")
+            file.write(f"file {ffconcat_escape(track.resolve())}\n")
 
 
 def ffmpeg_command(concat_path: Path, output: Path) -> list[str]:
