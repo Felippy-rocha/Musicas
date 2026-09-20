@@ -68,7 +68,7 @@ def estimated_output_size_bytes(tracks: list[Path]) -> int:
 
 
 def ffconcat_escape(path: Path) -> str:
-    return str(path).replace("\\", "\\\\").replace("'", r"\'")
+    return str(path).replace("\\", "\\\\").replace("'", "'\\''")
 
 
 def write_concat_file(tracks: list[Path], concat_path: Path) -> None:
@@ -101,7 +101,14 @@ def run_ffmpeg(command: list[str]) -> None:
             "ffmpeg não está instalado. Instale-o e execute o script novamente, "
             "ou use --dry-run para validar a ordem sem gerar o MP3."
         )
-    subprocess.run(command, check=True)
+    try:
+        subprocess.run(command, check=True)
+    except subprocess.CalledProcessError as error:
+        joined_command = " ".join(command)
+        raise RuntimeError(
+            "Falha ao gerar a concatenação com ffmpeg "
+            f"(saída {error.returncode}). Comando: {joined_command}"
+        ) from error
 
 
 def main() -> int:
