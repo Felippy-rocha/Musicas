@@ -6,7 +6,7 @@ Este repositório contém um script reproduzível para gerar `./montagem_todas_a
 
 - todos os 48 MP3 da raiz entram na montagem;
 - a ordenação usa o número inicial do nome do arquivo em ordem crescente;
-- a faixa "Nossa Senhora do Amparo" (arquivo `16.1 Nossa Sehora do Amparo.mp3`) fica depois das faixas `16` e antes da `17`;
+- a faixa "Nossa Senhora do Amparo" fica depois das faixas `16` e antes da `17`;
 - os dois arquivos iniciados por `30.` permanecem na posição 30, em ordem natural do nome;
 - cada música é repetida 3 vezes consecutivas antes da próxima.
 
@@ -28,7 +28,7 @@ Este repositório contém um script reproduzível para gerar `./montagem_todas_a
 14. `14.Viajando pela Italia.mp3`
 15. `15. Vila Rica.mp3`
 16. `16. O  Rapaziada do Braz.mp3`
-17. faixa "Nossa Senhora do Amparo" (arquivo `16.1 Nossa Sehora do Amparo.mp3`)
+17. Nossa Senhora do Amparo
 18. `17. O veio macho.mp3`
 19. `18. Xote dos cabeludos.mp3`
 20. `19. Xote Ecolologico.mp3`

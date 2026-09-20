@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -66,28 +67,34 @@ def estimated_output_size_bytes(tracks: list[Path]) -> int:
     return sum(track.stat().st_size for track in tracks) * 3
 
 
-def ffmpeg_command(tracks: list[Path], output: Path) -> list[str]:
-    expanded = expanded_tracks(tracks)
-    command = ["ffmpeg", "-hide_banner", "-y"]
-    for track in expanded:
-        command.extend(["-i", str(track)])
+def ffconcat_escape(path: Path) -> str:
+    return str(path).replace("\\", "\\\\").replace("'", r"\'")
 
-    audio_streams = "".join(f"[{index}:a]" for index in range(len(expanded)))
-    filter_complex = f"{audio_streams}concat=n={len(expanded)}:v=0:a=1[aout]"
-    command.extend(
-        [
-            "-filter_complex",
-            filter_complex,
-            "-map",
-            "[aout]",
-            "-c:a",
-            "libmp3lame",
-            "-q:a",
-            "2",
-            str(output),
-        ]
-    )
-    return command
+
+def write_concat_file(tracks: list[Path], concat_path: Path) -> None:
+    with concat_path.open("w", encoding="utf-8") as file:
+        file.write("ffconcat version 1.0\n")
+        for track in expanded_tracks(tracks):
+            file.write(f"file '{ffconcat_escape(track.resolve())}'\n")
+
+
+def ffmpeg_command(concat_path: Path, output: Path) -> list[str]:
+    return [
+        "ffmpeg",
+        "-hide_banner",
+        "-y",
+        "-f",
+        "concat",
+        "-safe",
+        "0",
+        "-i",
+        str(concat_path),
+        "-c:a",
+        "libmp3lame",
+        "-q:a",
+        "2",
+        str(output),
+    ]
 
 
 def run_ffmpeg(command: list[str]) -> None:
@@ -136,9 +143,23 @@ def main() -> int:
     if args.dry_run:
         return 0
 
-    command = ffmpeg_command(tracks, output_path)
-    print("Executando ffmpeg...")
-    run_ffmpeg(command)
+    with tempfile.NamedTemporaryFile(
+        "w",
+        encoding="utf-8",
+        suffix=".ffconcat",
+        prefix="montagem_todas_as_musicas_3x_",
+        delete=False,
+    ) as temp_file:
+        concat_path = Path(temp_file.name)
+
+    try:
+        write_concat_file(tracks, concat_path)
+        command = ffmpeg_command(concat_path, output_path)
+        print("Executando ffmpeg...")
+        run_ffmpeg(command)
+    finally:
+        concat_path.unlink(missing_ok=True)
+
     print("Montagem gerada com sucesso.")
     return 0
 
