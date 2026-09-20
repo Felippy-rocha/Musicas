@@ -103,12 +103,14 @@ def run_ffmpeg(command: list[str]) -> None:
             "ou use --dry-run para validar a ordem sem gerar o MP3."
         )
     try:
-        subprocess.run(command, check=True)
+        subprocess.run(command, check=True, stderr=subprocess.PIPE, text=True)
     except subprocess.CalledProcessError as error:
         joined_command = " ".join(command)
+        stderr_output = (error.stderr or "").strip()
         raise RuntimeError(
             "Falha ao gerar a concatenação com ffmpeg "
-            f"(saída {error.returncode}). Comando: {joined_command}"
+            f"(saída {error.returncode}). Comando: {joined_command}. "
+            f"stderr: {stderr_output or 'sem detalhes adicionais'}"
         ) from error
 
 
