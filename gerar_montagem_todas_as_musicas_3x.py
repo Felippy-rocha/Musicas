@@ -89,10 +89,8 @@ def ffmpeg_command(concat_path: Path, output: Path) -> list[str]:
         "0",
         "-i",
         str(concat_path),
-        "-c:a",
-        "libmp3lame",
-        "-q:a",
-        "2",
+        "-c",
+        "copy",
         str(output),
     ]
 

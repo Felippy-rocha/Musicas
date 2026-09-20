@@ -28,7 +28,7 @@ Este repositório contém um script reproduzível para gerar `./montagem_todas_a
 14. `14.Viajando pela Italia.mp3`
 15. `15. Vila Rica.mp3`
 16. `16. O  Rapaziada do Braz.mp3`
-17. Nossa Senhora do Amparo
+17. `16.1 Nossa Sehora do Amparo.mp3` (faixa "Nossa Senhora do Amparo")
 18. `17. O veio macho.mp3`
 19. `18. Xote dos cabeludos.mp3`
 20. `19. Xote Ecolologico.mp3`
@@ -77,4 +77,4 @@ python3 gerar_montagem_todas_as_musicas_3x.py --dry-run
 
 ## Limitação de tamanho
 
-Os MP3 de origem somam `143172806` bytes. Repetindo todas as faixas 3 vezes, a montagem final fica estimada em pelo menos `429518418` bytes antes de overhead/recodificação, ultrapassando o limite prático de arquivos versionados no GitHub. Por isso, o arquivo `montagem_todas_as_musicas_3x.mp3` não foi incluído no commit.
+Os MP3 de origem somam `143172806` bytes. Como o script usa concatenação contínua por `stream copy`, repetir todas as faixas 3 vezes leva a uma montagem estimada em aproximadamente `429518418` bytes, além de pequeno overhead de encapsulamento, ultrapassando o limite prático de arquivos versionados no GitHub. Por isso, o arquivo `montagem_todas_as_musicas_3x.mp3` não foi incluído no commit.
