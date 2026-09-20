@@ -45,11 +45,18 @@ def validate_tracks(
             f"Esperadas {expected_count} faixas MP3 na raiz, mas foram encontradas {len(tracks)}."
         )
 
-    sequence = build_sequence(tracks, repeats=repeats)
-    if len(sequence) != expected_count * repeats:
+    validate_sequence(build_sequence(tracks, repeats=repeats), tracks, repeats=repeats)
+
+
+def validate_sequence(
+    sequence: list[Path],
+    tracks: list[Path],
+    repeats: int = REPEATS_PER_TRACK,
+) -> None:
+    expected_entries = len(tracks) * repeats
+    if len(sequence) != expected_entries:
         raise ValueError(
-            f"Sequência inválida: esperado {expected_count * repeats} entradas, "
-            f"mas foram geradas {len(sequence)}."
+            f"Sequência inválida: esperado {expected_entries} entradas, mas foram geradas {len(sequence)}."
         )
 
     counts = Counter(sequence)
@@ -71,6 +78,19 @@ def validate_tracks(
                 "A ordem/repetição 3x consecutiva está incorreta em "
                 f"{track.name} (posição {index + 1})."
             )
+
+
+def validate_parts(
+    parts: list[list[Path]],
+    tracks: list[Path],
+    repeats: int = REPEATS_PER_TRACK,
+    expected_parts: int = DEFAULT_PARTS,
+) -> None:
+    if len(parts) != expected_parts:
+        raise ValueError(f"Esperadas exatamente {expected_parts} partes, mas foram geradas {len(parts)}.")
+
+    flattened = [item for part in parts for item in part]
+    validate_sequence(flattened, tracks, repeats=repeats)
 
 
 def build_sequence(tracks: list[Path], repeats: int = REPEATS_PER_TRACK) -> list[Path]:
@@ -168,6 +188,7 @@ def generate_parts(
         raise ValueError("Esta automação foi configurada para gerar exatamente 3 partes.")
 
     split_parts = split_sequence(tracks, repeats=repeats, parts=parts)
+    validate_parts(split_parts, tracks, repeats=repeats, expected_parts=parts)
     output_files: list[Path] = []
     for index, part_sequence in enumerate(split_parts, start=1):
         output_file = output_dir / f"{OUTPUT_BASENAME}_parte_{index}.mp3"
@@ -218,6 +239,7 @@ def main() -> int:
     if args.command == "validate":
         validate_tracks(tracks, expected_count=args.expected_count)
         parts = split_sequence(tracks)
+        validate_parts(parts, tracks)
         print_summary(tracks, parts)
         return 0
 

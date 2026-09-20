@@ -1,7 +1,6 @@
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
 
 import gerar_montagem_todas_as_musicas_3x as montagem
 
@@ -47,7 +46,7 @@ class MontagemTests(unittest.TestCase):
         self.assertEqual(parts[1][:3], [tracks[16], tracks[16], tracks[16]])
         self.assertEqual(parts[2][:3], [tracks[32], tracks[32], tracks[32]])
 
-    def test_validate_tracks_rejects_non_consecutive_triplets(self):
+    def test_validate_sequence_rejects_non_consecutive_triplets(self):
         tracks = [Path(f"{index}. faixa.mp3") for index in range(1, 49)]
         invalid_sequence = []
         for index, track in enumerate(tracks):
@@ -58,9 +57,18 @@ class MontagemTests(unittest.TestCase):
             else:
                 invalid_sequence.extend([track, track, track])
 
-        with patch.object(montagem, "build_sequence", return_value=invalid_sequence):
-            with self.assertRaisesRegex(ValueError, "ordem/repetição 3x consecutiva"):
-                montagem.validate_tracks(tracks)
+        with self.assertRaisesRegex(ValueError, "ordem/repetição 3x consecutiva"):
+            montagem.validate_sequence(invalid_sequence, tracks)
+
+    def test_validate_tracks_and_parts_accept_real_repository_flow(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            for index in range(1, 49):
+                (root / f"{index}. faixa.mp3").write_bytes(b"")
+
+            tracks = montagem.discover_tracks(root)
+            montagem.validate_tracks(tracks)
+            montagem.validate_parts(montagem.split_sequence(tracks), tracks)
 
     def test_generate_parts_rejects_any_number_other_than_three(self):
         with tempfile.TemporaryDirectory() as temp_dir:
