@@ -2,13 +2,13 @@
 from __future__ import annotations
 
 import argparse
-import math
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
 from collections import Counter
+from decimal import Decimal
 from pathlib import Path
 
 EXPECTED_TRACK_COUNT = 48
@@ -17,11 +17,11 @@ DEFAULT_PARTS = 3
 OUTPUT_BASENAME = "montagem_todas_as_musicas_3x"
 
 
-def numeric_prefix_key(path: Path) -> tuple[float, str]:
+def numeric_prefix_key(path: Path) -> tuple[Decimal, str]:
     match = re.match(r"^\s*(\d+(?:\.\d+)?)", path.name)
     if match:
-        return float(match.group(1)), path.name.casefold()
-    return math.inf, path.name.casefold()
+        return Decimal(match.group(1)), path.name.casefold()
+    return Decimal("Infinity"), path.name.casefold()
 
 
 def discover_tracks(input_dir: Path) -> list[Path]:
@@ -52,13 +52,14 @@ def validate_tracks(
             f"mas foram geradas {len(sequence)}."
         )
 
-    counts = Counter(path.name for path in sequence)
+    counts = Counter(sequence)
     invalid_counts = {
         name: count for name, count in counts.items() if count != repeats
     }
     if invalid_counts:
         details = ", ".join(
-            f"{name}={count}" for name, count in sorted(invalid_counts.items())
+            f"{path.name}={count}"
+            for path, count in sorted(invalid_counts.items(), key=lambda item: item[0].name.casefold())
         )
         raise ValueError(f"Cada faixa deve aparecer {repeats} vezes. Contagens inválidas: {details}")
 

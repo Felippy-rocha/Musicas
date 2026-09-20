@@ -3,6 +3,9 @@ name: Gerar montagem em 3 partes
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   gerar-montagem:
     runs-on: ubuntu-latest
