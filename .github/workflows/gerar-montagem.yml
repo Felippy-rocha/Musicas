@@ -1,0 +1,55 @@
+name: Gerar montagem em 3 partes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  gerar-montagem:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar repositório
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Rodar testes do script
+        run: |
+          python3 -m unittest discover -s tests -v
+
+      - name: Validar contagem, ordem e repetição 3x
+        run: |
+          python3 gerar_montagem_todas_as_musicas_3x.py validate --input-dir .
+
+      - name: Gerar as 3 partes
+        run: |
+          python3 gerar_montagem_todas_as_musicas_3x.py generate --input-dir . --output-dir output/montagem_3_partes --parts 3
+
+      - name: Publicar parte 1
+        uses: actions/upload-artifact@v4
+        with:
+          name: montagem_todas_as_musicas_3x_parte_1
+          path: output/montagem_3_partes/montagem_todas_as_musicas_3x_parte_1.mp3
+          if-no-files-found: error
+
+      - name: Publicar parte 2
+        uses: actions/upload-artifact@v4
+        with:
+          name: montagem_todas_as_musicas_3x_parte_2
+          path: output/montagem_3_partes/montagem_todas_as_musicas_3x_parte_2.mp3
+          if-no-files-found: error
+
+      - name: Publicar parte 3
+        uses: actions/upload-artifact@v4
+        with:
+          name: montagem_todas_as_musicas_3x_parte_3
+          path: output/montagem_3_partes/montagem_todas_as_musicas_3x_parte_3.mp3
+          if-no-files-found: error
