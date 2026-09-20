@@ -94,9 +94,9 @@ class MontagemTests(unittest.TestCase):
 
             content = concat_file.read_text(encoding="utf-8")
 
-        self.assertIn(r"file ", content)
-        self.assertIn(r"\ ", content)
-        self.assertIn(r"\'", content)
+        escaped_track = track.resolve().as_posix().replace("'", "'\\''")
+        expected_line = f"file '{escaped_track}'\n"
+        self.assertEqual(content, expected_line)
 
     def test_generate_parts_rejects_any_number_other_than_three(self):
         with tempfile.TemporaryDirectory() as temp_dir:
